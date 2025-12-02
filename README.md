@@ -18,6 +18,21 @@ Simple Web interface for the File Manager API.
 4. If your host supports redirects, you can optionally serve `index.html` as the fallback for client-side routing (not required here because routes are shallow).
 5. Verify by loading the deployed URL and confirming login/upload works against the configured API base.
 
-## Lint
+## Architecture & decisions
 
-- Run `npm run lint` to check code style and catch common issues.
+- Html/CSS/JavaScript + Vite with a single `app.js`; no framework or state library. State is kept in a plain object and DOM is updated imperatively.
+- Authentication token is stored in `localStorage` and passed via `Authorization` header; backend cookies are also allowed via `credentials: "include"`.
+- File uploads use `XMLHttpRequest` for progress reporting; other API calls use `fetch` with a request ID header.
+- Thumbnails and previews are fetched per file; blob URLs are cached/revoked to avoid leaks.
+
+## Trade-offs / known limitations
+
+- No client-side routing or deep links; everything lives on one page.
+- Minimal input validation and no form error highlighting beyond text feedback.
+- No automated tests or type checking; regressions must be caught manually.
+- Accessibility and internationalization are only partially covered.
+
+## Future improvements (optional)
+
+- Add tests (unit + e2e), stronger validation, and accessibility passes.
+- Support drag-and-drop uploads and multiple file selection with batch progress.
