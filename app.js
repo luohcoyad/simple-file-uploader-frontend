@@ -43,6 +43,8 @@ const authSub = el("auth-sub");
 const logoutBtn = el("logout-btn");
 const thumbnailCache = new Map();
 let previewObjectUrl = null;
+const uploadInput = el("file-input");
+const uploadBtn = el("upload-btn");
 
 function apiFetch(url, options = {}) {
   const headers = options.headers ? { ...options.headers } : {};
@@ -86,6 +88,7 @@ function setAuthState(token) {
     authSub.textContent = "";
     logoutBtn.hidden = true;
   }
+  setUploadControlsEnabled(Boolean(token));
 }
 
 function switchTab(tab) {
@@ -189,6 +192,7 @@ function showUploadProgress(percent, label = "") {
 function ensureLoggedIn() {
   if (!state.token) {
     authFeedback.textContent = "Please log in first.";
+    alert("Please log in before uploading.");
     return false;
   }
   return true;
@@ -226,6 +230,12 @@ function clearThumbnails() {
   thumbnailCache.clear();
 }
 
+function setUploadControlsEnabled(enabled) {
+  if (!uploadInput || !uploadBtn) return;
+  uploadInput.disabled = !enabled;
+  uploadBtn.disabled = !enabled;
+}
+
 function setThumbPlaceholder(cell) {
   cell.textContent = "";
   const placeholder = document.createElement("span");
@@ -236,12 +246,11 @@ function setThumbPlaceholder(cell) {
 
 async function uploadFile() {
   if (!ensureLoggedIn()) return;
-  const input = el("file-input");
-  if (!input.files.length) {
+  if (!uploadInput || !uploadInput.files.length) {
     uploadFeedback.textContent = "Choose a file first.";
     return;
   }
-  const file = input.files[0];
+  const file = uploadInput.files[0];
   if (file.size > MAX_FILE_SIZE) {
     uploadFeedback.textContent = `File is too large. Max size is ${humanSize(
       MAX_FILE_SIZE
@@ -271,7 +280,7 @@ async function uploadFile() {
   xhr.onload = () => {
     if (xhr.status >= 200 && xhr.status < 300) {
       uploadFeedback.textContent = "Upload complete.";
-      input.value = "";
+      uploadInput.value = "";
       showUploadProgress(0, "");
       fetchFiles();
     } else {
@@ -528,7 +537,7 @@ function bindEvents() {
   loginTab.addEventListener("click", () => switchTab("login"));
   el("signup-btn").addEventListener("click", signup);
   el("login-btn").addEventListener("click", login);
-  el("upload-btn").addEventListener("click", uploadFile);
+  uploadBtn.addEventListener("click", uploadFile);
   el("refresh-btn").addEventListener("click", fetchFiles);
   logoutBtn.addEventListener("click", logout);
   el("limit-select").addEventListener("change", (e) => {
