@@ -42,6 +42,7 @@ const authStatus = el("auth-status");
 const authSub = el("auth-sub");
 const logoutBtn = el("logout-btn");
 const thumbnailCache = new Map();
+let previewObjectUrl = null;
 
 function apiFetch(url, options = {}) {
   const headers = options.headers ? { ...options.headers } : {};
@@ -207,6 +208,10 @@ async function logout() {
 }
 
 function clearPreview() {
+  if (previewObjectUrl) {
+    URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
   el("preview").classList.add("hidden");
   el("preview-img").src = "";
   el("preview-label").textContent = "";
@@ -479,11 +484,31 @@ async function previewFile(item) {
     clearPreview();
     return;
   }
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  el("preview-img").src = url;
-  el("preview").classList.remove("hidden");
-  el("preview-label").textContent = item.display_name;
+  const contentType = res.headers.get("content-type") || "";
+  try {
+    if (contentType.includes("application/json")) {
+      const data = await res.json().catch(() => ({}));
+      if (!data || !data.url) {
+        clearPreview();
+        return;
+      }
+      const fileRes = await fetch(data.url);
+      if (!fileRes.ok) {
+        clearPreview();
+        return;
+      }
+      const blob = await fileRes.blob();
+      previewObjectUrl = URL.createObjectURL(blob);
+    } else {
+      const blob = await res.blob();
+      previewObjectUrl = URL.createObjectURL(blob);
+    }
+    el("preview-img").src = previewObjectUrl;
+    el("preview").classList.remove("hidden");
+    el("preview-label").textContent = item.display_name;
+  } catch {
+    clearPreview();
+  }
 }
 
 function nextPage() {
