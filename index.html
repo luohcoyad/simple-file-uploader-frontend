@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple File Uploader</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header>
+        <div>
+          <p class="eyebrow">File manager</p>
+          <h1>Upload and manage your files</h1>
+        </div>
+        <div class="user-actions">
+          <div id="auth-sub" class="muted"></div>
+          <div id="auth-status"></div>
+          <button id="logout-btn" class="ghost" hidden>Logout</button>
+        </div>
+      </header>
+
+      <section class="card">
+        <div class="tabs">
+          <button id="signup-tab" class="tab active">Sign up</button>
+          <button id="login-tab" class="tab">Login</button>
+        </div>
+        <div id="signup-form" class="form-grid">
+          <input id="signup-email" type="email" placeholder="Email" />
+          <input
+            id="signup-password"
+            type="password"
+            placeholder="Password (8+ chars)"
+          />
+          <button id="signup-btn">Create account</button>
+        </div>
+        <div id="login-form" class="form-grid hidden">
+          <input id="login-email" type="email" placeholder="Email" />
+          <input id="login-password" type="password" placeholder="Password" />
+          <button id="login-btn">Login</button>
+        </div>
+        <p id="auth-feedback" class="feedback"></p>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Upload files</h2>
+            <p class="muted">
+              Max <span id="max-file-size">50 MB</span> per file. Progress shows
+              as it uploads.
+            </p>
+          </div>
+          <button id="refresh-btn" class="ghost">Refresh list</button>
+        </div>
+        <div class="upload-area">
+          <input id="file-input" type="file" />
+          <button id="upload-btn">Upload</button>
+        </div>
+        <div class="progress-row">
+          <progress id="upload-progress" value="0" max="100"></progress>
+          <span id="progress-label"></span>
+        </div>
+        <p id="upload-feedback" class="feedback"></p>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <h2>Your files</h2>
+            <p class="muted">
+              Click a row to preview images. Sort and paginate below.
+            </p>
+          </div>
+          <div class="controls">
+            <label
+              >Sort:
+              <select id="sort-select">
+                <option value="desc">Newest</option>
+                <option value="asc">Oldest</option>
+              </select>
+            </label>
+            <label
+              >Page size:
+              <select id="limit-select">
+                <option value="5">5</option>
+                <option value="10" selected>10</option>
+                <option value="20">20</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Thumbnail</th>
+                <th>Name</th>
+                <th>Size</th>
+                <th>Type</th>
+                <th>Uploaded</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="file-rows"></tbody>
+          </table>
+        </div>
+        <div class="pagination">
+          <button id="prev-page" class="ghost">Prev</button>
+          <span id="page-info"></span>
+          <button id="next-page" class="ghost">Next</button>
+        </div>
+        <p id="list-feedback" class="feedback"></p>
+        <div id="preview" class="preview hidden">
+          <div>
+            <p class="eyebrow">Preview</p>
+            <p id="preview-label"></p>
+          </div>
+          <img id="preview-img" alt="Preview" />
+        </div>
+      </section>
+    </div>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
