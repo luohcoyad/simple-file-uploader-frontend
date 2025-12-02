@@ -45,12 +45,18 @@ const thumbnailCache = new Map();
 let previewObjectUrl = null;
 const uploadInput = el("file-input");
 const uploadBtn = el("upload-btn");
+let handledUnauthorized = false;
 
 function apiFetch(url, options = {}) {
   const headers = options.headers ? { ...options.headers } : {};
   headers["X-Request-ID"] = makeRequestId();
   const credentials = options.credentials ?? "include";
-  return fetch(url, { ...options, headers, credentials });
+  return fetch(url, { ...options, headers, credentials }).then((res) => {
+    if (res.status === 401 && state.token) {
+      handleUnauthorized();
+    }
+    return res;
+  });
 }
 
 function formatError(data, fallback = "Something went wrong.") {
@@ -236,6 +242,21 @@ function setUploadControlsEnabled(enabled) {
   uploadBtn.disabled = !enabled;
 }
 
+function handleUnauthorized() {
+  if (handledUnauthorized) return;
+  handledUnauthorized = true;
+  setAuthState(null);
+  state.offset = 0;
+  renderRows([]);
+  clearPreview();
+  authFeedback.textContent = "Session expired. Please log in.";
+  listFeedback.textContent = "Session expired. Please log in.";
+  uploadFeedback.textContent = "";
+  setTimeout(() => {
+    handledUnauthorized = false;
+  }, 500);
+}
+
 function setThumbPlaceholder(cell) {
   cell.textContent = "";
   const placeholder = document.createElement("span");
@@ -278,6 +299,12 @@ async function uploadFile() {
   });
 
   xhr.onload = () => {
+    if (xhr.status === 401) {
+      uploadFeedback.textContent = "Session expired. Please log in.";
+      showUploadProgress(0, "");
+      handleUnauthorized();
+      return;
+    }
     if (xhr.status >= 200 && xhr.status < 300) {
       uploadFeedback.textContent = "Upload complete.";
       uploadInput.value = "";

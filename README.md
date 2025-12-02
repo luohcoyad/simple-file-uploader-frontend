@@ -21,7 +21,7 @@ Simple Web interface for the File Manager API.
 ## Architecture & decisions
 
 - Html/CSS/JavaScript + Vite with a single `app.js`; no framework or state library. State is kept in a plain object and DOM is updated imperatively.
-- Authentication token is stored in `localStorage` and passed via `Authorization` header; backend cookies are also allowed via `credentials: "include"`.
+- Authentication token is stored in `localStorage` and passed via `Authorization` header; backend cookies are also sent via `credentials: "include"`.
 - File uploads use `XMLHttpRequest` for progress reporting; other API calls use `fetch` with a request ID header.
 - Thumbnails and previews are fetched per file; blob URLs are cached/revoked to avoid leaks.
 
